@@ -4,17 +4,17 @@ import cv2
 
 class AprilTagWrapper:
 
-    def __init__(self, tagNames, frameRate):
+    def __init__(self, tagIDs, frameRate):
         '''
-        :param tagNames: a list of april tag names
+        :param tagIDs: a list of april tag names
         :param frameRate: camera FPS
         '''
-        assert isinstance(tagNames, list)
+        assert isinstance(tagIDs, list)
 
-        self.tagNames = tagNames
+        self.tagIDs = tagIDs
         self.detector = apriltag.Detector(
                                  searchpath=apriltag._get_demo_searchpath())
-        self.ekf = [EKF(frame_rate=frameRate) for _ in range(len(tagNames))]
+        self.ekf = [EKF(frame_rate=frameRate) for _ in range(len(tagIDs))]
 
 
 
@@ -28,24 +28,24 @@ class AprilTagWrapper:
 
         # iterate over all the detection tags
         for detect in detections:
-            family_id = detect.tag_family.decode('utf-8')
-            if family_id in self.tagNames:
+            family_id = detect.tag_id
+            if family_id in self.tagIDs:
 
-                index = self.tagNames.index(family_id)
+                index = self.tagIDs.index(family_id)
                 # update specific ekf
                 self.ekf[index].update(detect.center[0], detect.center[1])
 
         return detections
 
 
-    def __call__(self, tagName):
+    def __call__(self, tagID):
         '''
-        :param tagName: string tag name
+        :param tagID: string tag name
         :return: center point of the tag
         '''
-        assert tagName in self.tagNames
+        assert tagID in self.tagIDs
 
-        index = self.tagNames.index(tagName)
+        index = self.tagIDs.index(tagID)
         tagState = self.ekf[index]()
 
         if tagState is None:
