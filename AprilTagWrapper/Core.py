@@ -1,5 +1,5 @@
 import apriltag
-from .tracker import EKF
+from .tracker import EKFImageCoord
 import cv2
 
 class AprilTagWrapper:
@@ -14,7 +14,7 @@ class AprilTagWrapper:
         self.tagIDs = tagIDs
         self.detector = apriltag.Detector(
                                  searchpath=apriltag._get_demo_searchpath())
-        self.ekf = [EKF(frame_rate=frameRate) for _ in range(len(tagIDs))]
+        self.ekf = [EKFImageCoord(FPS=frameRate) for _ in range(len(tagIDs))]
 
 
 
@@ -33,7 +33,7 @@ class AprilTagWrapper:
 
                 index = self.tagIDs.index(family_id)
                 # update specific ekf
-                self.ekf[index].update(detect.center[0], detect.center[1])
+                self.ekf[index](detect.center[0], detect.center[1])
 
         return detections
 
@@ -46,7 +46,7 @@ class AprilTagWrapper:
         assert tagID in self.tagIDs
 
         index = self.tagIDs.index(tagID)
-        tagState = self.ekf[index]()
+        tagState = next(self.ekf[index])
 
         if tagState is None:
             return
