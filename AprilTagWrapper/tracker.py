@@ -69,6 +69,48 @@ class EKFImageCoord(ExtendedKalmanFilterBase):
         mean = np.squeeze(self.xEst)
         return mean
 
+class EKFCameraWorldCoord(ExtendedKalmanFilterBase):
+    EIC_F = np.zeros((12, 12))
+    EIC_F[:6, :6] = np.eye(6)
+
+    EIC_H = np.zeros((6, 12))
+    EIC_H[:6, :6] = np.eye(6)
+
+    EIC_Q = np.eye(12) * 0.5
+    EIC_Q = EIC_Q ** 2
+    EIC_R = np.eye(6) ** 2  # Observation position and orientation covariance
+
+    def __init__(self, FPS):
+        self.dt = 1.0 / float(FPS)
+        EIC_B = np.zeros((12, 2))
+        super().__init__(self.EIC_F, EIC_B, self.EIC_H)
+
+    def jacob_h(self):
+        return self.EIC_H
+
+    def jacob_f(self, x, u):
+        jF = self.EIC_F.copy()
+        jF[:6, 6:] = np.eye(6) * np.squeeze(x[6:]) * self.dt
+        return jF
+
+    def __call__(self, Z):
+        self.z = np.expand_dims(Z, axis=1)
+        if not self.initialization:
+            self.u = np.array([[0], [0]])
+            xEst = np.zeros((12, 1))
+            PEst = np.eye(12)
+            xEst[:6, 0] = Z
+            self.set(xEst, PEst, self.EIC_Q, self.EIC_R)
+            return
+
+        self.update(self.z, self.u)
+
+    def __next__(self):
+        if not self.initialization:
+            return
+        self.update(self.z, self.u)
+        mean = np.squeeze(self.xEst)
+        return mean
 
 
 
