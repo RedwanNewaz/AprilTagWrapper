@@ -2,7 +2,6 @@ EKF:
   processNoise: 0.5
   measurementNoise: 1e-9
   mahalanobisThresh: 5
-  dt: 0.033
 
 AprilTag:
   tag_size: 0.50
@@ -11,9 +10,10 @@ AprilTag:
   quad_sigma: 0.0
   refine_edges: 1
   nthreads: 8
+  tag_start: 20
 
 Camera:
-  index: 3
+  index: 2
   fx: 1317.1810580277324
   fy: 1311.5926572264152
   cx: 959.4999999687046

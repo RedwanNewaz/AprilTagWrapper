@@ -31,7 +31,7 @@ april_tag_wrapper::april_tag_wrapper() {
 
 }
 
-vector<apriltag_detection_t*> april_tag_wrapper::operator()(const Mat &gray) {
+vector<apriltag_detection_t*> april_tag_wrapper::detect(const Mat &gray) {
 
     // Make an image_u8_t header for the Mat data
     image_u8_t im = { .width = gray.cols,

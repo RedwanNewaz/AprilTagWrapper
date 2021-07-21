@@ -2,21 +2,24 @@
 // Created by redwan on 7/20/21.
 //
 
-#include "robot_localization/filter_interface.h"
+#include "robot_localization/ekf_interface.h"
 
 #include <memory>
 using namespace RobotLocalization;
+// initialize a timer reference here to compute get_ms() during runtime
+// cpp chrono library is used to track time
+static chrono::time_point<std::chrono::high_resolution_clock> startTime  = std::chrono::high_resolution_clock::now();
 
-filter_interface::filter_interface() {
-    // initialize a timer reference here to compute get_ms() during runtime
-    start_time_ = std::chrono::high_resolution_clock::now();
-    // TODO make a generic template. How to use UKF without changing this class?
+ekf_interface::ekf_interface(double processNoise, double measurementNoise, double mahalanobisThresh)
+: process_noise_(processNoise), measurement_noise_(measurementNoise), mahalanobisThresh_(mahalanobisThresh)
+{
+    // initialize base ekf
     ekf_ = std::make_unique<Ekf>();
     // set initial covariance R matrix
     Eigen::MatrixXd initialCovar(STATE_SIZE, STATE_SIZE);
     initialCovar.setIdentity();
     // TODO replace the magic number from yaml parameter
-    initialCovar *= 0.5;
+    initialCovar *= process_noise_;
     ekf_->setEstimateErrorCovariance(initialCovar);
     // initially we only predict for current step
     // as the time progress dt automatically get updated based on the detection and
@@ -24,16 +27,16 @@ filter_interface::filter_interface() {
     dt_ = 0.0;
 
 }
-filter_interface::~filter_interface()= default;
+ekf_interface::~ekf_interface()= default;
 
-long filter_interface::get_ms() {
+long ekf_interface::get_ms() {
     // cpp chrono library is used to track time elapse for this class
     const auto end_time = std::chrono::high_resolution_clock::now();
     // elapsed time returned in millisecond
-    return std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time_).count();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(end_time - startTime).count();
 }
 
-void filter_interface::measurement_update(const Eigen::VectorXd &Z) {
+void ekf_interface::measurement_update(const Eigen::VectorXd &Z) {
     double time_elapsed = (double) get_ms()/ 1000.0;
 //    cout << "[FilterInterface] update time " << time_elapsed << "sec \n Z: \n" << Z << endl;
     // measurement dimension 15
@@ -57,14 +60,14 @@ void filter_interface::measurement_update(const Eigen::VectorXd &Z) {
     measurementCovariance.setIdentity();
     for (size_t i = 0; i < dim; ++i)
     {
-        measurementCovariance(i, i) = 1e-9;
+        measurementCovariance(i, i) = measurement_noise_;
     }
     measurement.covariance_ = measurementCovariance;
 
     //https://github.com/cra-ros-pkg/robot_localization/blob/noetic-devel/params/ekf_template.yaml
     //odom0_pose_rejection_threshold: 5
     //odom0_twist_rejection_threshold: 1
-    measurement.mahalanobisThresh_ = 5;
+    measurement.mahalanobisThresh_ = mahalanobisThresh_;
 
     // predict first
     ekf_->predict(time_elapsed,  time_elapsed + dt_);
@@ -72,7 +75,7 @@ void filter_interface::measurement_update(const Eigen::VectorXd &Z) {
     ekf_->correct(measurement);
 }
 
-Eigen::VectorXd filter_interface::estimate_state(double ref, double current) {
+Eigen::VectorXd ekf_interface::estimate_state(double ref, double current) {
     // update delta
     dt_ = current - ref;
     return ekf_->getState();

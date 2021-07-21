@@ -68,7 +68,7 @@ struct Measurement
   double mahalanobisThresh_;
 
   // The real-valued time, in seconds, since some epoch
-  // (presumably the start of execution, but any will do)
+  // (presumably the startTime of execution, but any will do)
   double time_;
 
   // The topic name for this measurement. Needed

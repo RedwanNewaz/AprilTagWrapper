@@ -1,7 +1,7 @@
 #include <iostream>
 #include "robot_localization/ekf.h"
 #include "april_tag_wrapper/april_tag_wrapper.h"
-#include "robot_localization/filter_interface.h"
+#include "robot_localization/ekf_interface.h"
 
 using namespace cv;
 using namespace std;
@@ -38,34 +38,51 @@ void overlay_detections(cv::Mat& frame, const apriltag_detection_t* det)
 }
 
 
-int main() {
+int main(int argc, char *argv[]) {
 
+    assert(argc > 1 && "config param file is missing");
+
+
+    const string config_param = argv[1];
+    //Read parameters from yaml file
+    YAML::Node config = YAML::LoadFile(config_param);
+    std::cout << "Parsed YAML:\n" << config << std::endl;
+
+    auto cameraIndex = config["Camera"]["index"].as<int>();
 
     // Initialize camera
-    VideoCapture cap(2);
+    VideoCapture cap(cameraIndex);
     if (!cap.isOpened()) {
         cerr << "Couldn't open video capture device" << endl;
         return -1;
     }
-    const int num_tags = 4;
-    const int tag_offset = 20;
+    const int num_tags = config["AprilTag"]["numTags"].as<int>();
+    const int tag_offset = config["AprilTag"]["tag_start"].as<int>();
 
-    filter_interface filters[num_tags];
+    // TODO send a vector of process and measurement noises for generating their corresponding covariances
+    auto processNoise = config["EKF"]["processNoise"].as<double>();
+    auto measurementNoise = config["EKF"]["measurementNoise"].as<double>();
+    auto mahalanobisThresh = config["EKF"]["mahalanobisThresh"].as<double>();
+
+    // extended kalman filter initialize for each tag
+    vector<unique_ptr<ekf_interface>>filters;
+    for (int i = 0; i < num_tags; ++i) {
+        filters.emplace_back(std::make_unique<ekf_interface>(processNoise, measurementNoise, mahalanobisThresh));
+    }
+
 
     Mat frame, gray;
     april_tag_wrapper decoder;
-    auto t1 = std::chrono::high_resolution_clock::now();
+
     double ref_time, dt;
     while (true)
     {
         cap >> frame;
         cvtColor(frame, gray, COLOR_BGR2GRAY);
-        auto detections = decoder(gray);
+        auto detections = decoder.detect(gray);
         // Draw detection outlines
         for (auto &  det: detections) {
-            auto t2 = std::chrono::high_resolution_clock::now();
-            auto elapse = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-            ref_time = elapse/ 1000.0;
+            ref_time = filters[0]->get_ms()/ 1000.0;
             // overlay detection on frame
             overlay_detections(frame, det);
             // get transformation matrix
@@ -73,16 +90,14 @@ int main() {
             // update specific filter
             int index = det->id - tag_offset;
             // update corresponding filter
-            filters[index].measurement_update(pose);
+            filters[index]->measurement_update(pose);
 
         }
 
-        auto t2 = std::chrono::high_resolution_clock::now();
-        auto elapse = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-        dt = elapse/ 1000.0;
+        dt = filters[0]->get_ms()/ 1000.0;
 
         for (int i = 0; i < num_tags; ++i) {
-            auto predict = filters[i].estimate_state(ref_time, dt);
+            auto predict = filters[i]->estimate_state(ref_time, dt);
             cout << i <<" > [prediction] \n " << predict << endl;
         }
 
@@ -91,6 +106,8 @@ int main() {
         if (waitKey(1) == 27)
             break;
     }
+
+
 
     return 0;
 }

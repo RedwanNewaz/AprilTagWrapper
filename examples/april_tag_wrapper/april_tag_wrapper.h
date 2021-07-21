@@ -24,7 +24,7 @@ using namespace std;
 class april_tag_wrapper {
 public:
     april_tag_wrapper();
-    vector<apriltag_detection_t*> operator()(const cv::Mat & frame);
+    vector<apriltag_detection_t*> detect(const cv::Mat & grayFrame);
     Eigen::Matrix4d get_world_coords(apriltag_detection_t * detection);
     Eigen::VectorXd get_pose(apriltag_detection_t * detection);
     virtual ~ april_tag_wrapper();
