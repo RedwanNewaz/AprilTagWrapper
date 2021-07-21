@@ -89,6 +89,13 @@ class camera(object):
            self.frame = cv2.circle(self.frame, center, self.radius, self.center_color, self.thickness)
         self.frame = self.show_coord(self.frame, detection, centers)
 
+    def draw_bounding_box(self, image, detections):
+        for detection in detections:
+            start_point, end_point = self.corners2cvbox(corners=detection.corners)
+            # Using cv2.putText() method
+            image = cv2.rectangle(image, start_point, end_point, self.color, self.thickness)
+
+        return image
 
 
 

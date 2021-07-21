@@ -1,3 +1,4 @@
 apriltag
 opencv-python
 numpy
+scipy
