@@ -1,0 +1,21 @@
+EKF:
+  processNoise: 0.5
+  measurementNoise: 1e-9
+  mahalanobisThresh: 5
+  dt: 0.033
+
+AprilTag:
+  tag_size: 0.50
+  numTags: 4
+  quad_decimate: 2.0
+  quad_sigma: 0.0
+  refine_edges: 1
+  nthreads: 8
+
+Camera:
+  index: 3
+  fx: 1317.1810580277324
+  fy: 1311.5926572264152
+  cx: 959.4999999687046
+  cy: 539.5000001152366
+
