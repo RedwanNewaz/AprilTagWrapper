@@ -10,6 +10,7 @@ libboost-all-dev libeigen3-dev libgl1-mesa-dev
 
 COPY . .
 
+RUN python3 setup.py install 
 
 WORKDIR /app/PoseEKF
 
