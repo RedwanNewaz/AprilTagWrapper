@@ -9,5 +9,5 @@ services:
     privileged: true
     volumes:
       - /dev/video2:/dev/video0 # share the camera index
-      - ./example/camera.param:/app/camera.param # share the camera parameter
+      - ./camera.param:/app/camera.param # share the camera parameter
     restart: unless-stopped

@@ -7,7 +7,7 @@ RUN apt update
 RUN apt install -y git cmake build-essential \
 libboost-all-dev libeigen3-dev libgl1-mesa-dev
 
-RUN pip3 install git+https://github.com/RedwanNewaz/AprilTagWrapper.git
+RUN pip3 install setup.py
 
 COPY PoseEKF ./PoseEKF
 
