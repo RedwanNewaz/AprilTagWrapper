@@ -51,7 +51,7 @@ services:
     image: redwan06me/apriltag-ekf-server:1.0.0
     container_name: apriltag
     ports:
-    - 5000:500
+    - 5000:5000
     privileged: true
     volumes:
       - /dev/video0:/dev/video0 # share the camera index
@@ -62,4 +62,13 @@ services:
  To share an external camera change this line 
  **- /dev/video0:/dev/video0** to **- /dev/video1:/dev/video0**
  assuming that your external camera index is 1 
+ 
+ ## How to see the result?
+ 
+ Fire up any browser and query to this link 
+ ```
+ http://localhost:5000/
+ ```
+ You may also use python requests library and example of requests library can be found in the example folder. 
+ ```
  
