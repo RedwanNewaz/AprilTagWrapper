@@ -1,4 +1,5 @@
-FROM python:3.8-slim
+FROM armhf/python:3.6-slim
+
 
 WORKDIR /app
 
