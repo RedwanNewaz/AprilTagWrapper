@@ -19,7 +19,7 @@ dependencies
 if [ ! -d "PoseEKF" ]
 then
   echo "[+] cloning PoseEKF repo"
-  git clone https://github.com/RedwanNewaz/PoseEKF.git
+  git clone https://github.com/RedwanNewaz/PoseEKF.git -b docker
 fi
 
 if [ -d "PoseEKF/build" ]
