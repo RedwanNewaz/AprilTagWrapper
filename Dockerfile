@@ -14,12 +14,12 @@ COPY PoseEKF ./PoseEKF
 
 WORKDIR /app/PoseEKF
 
-RUN  ./install.sh
+RUN ./install.sh
 
 WORKDIR /app
 
-COPY example/camera.param .
+COPY camera.param .
 
-COPY example/dockerFlaskEKF.py .
+COPY dockerFlaskEKF.py .
 
 CMD ["python3", "dockerFlaskEKF.py", "--K", "camera.param"]
