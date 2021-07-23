@@ -2,3 +2,4 @@ apriltag
 opencv-python
 numpy
 scipy
+matplotlib
