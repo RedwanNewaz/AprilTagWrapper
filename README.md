@@ -40,6 +40,7 @@ You need a camaera.param file which contains camera calibration parameters.
   cy = 539.5000001152366
 ```
 The text are not imporant just need to define **fx, fy, cx, cy** in four lines. 
+Note that these are my camera parameter, your camera parameter should be different. 
 Once you have it try the following configuration 
 
 
