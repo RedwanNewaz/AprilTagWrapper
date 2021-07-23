@@ -1,0 +1,13 @@
+version: "3.0"
+
+services:
+  apriltag:
+    build: "."
+    container_name: apriltag
+    ports:
+    - 5000:500
+    privileged: true
+    volumes:
+      - /dev/video2:/dev/video0 # share the camera index
+      - ./example/camera.param:/app/camera.param # share the camera parameter
+    restart: unless-stopped

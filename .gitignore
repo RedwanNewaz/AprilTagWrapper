@@ -2,3 +2,5 @@ Test
 .idea
 __pycache__
 workspace.py
+PoseEKF/PoseEKF/build
+PoseEKF/python_pose_ekf.so
