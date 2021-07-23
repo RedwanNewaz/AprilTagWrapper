@@ -48,7 +48,7 @@ version: "3.0"
 
 services:
   apriltag:
-    build: "."
+    image: redwan06me/apriltag-ekf-server:1.0.0
     container_name: apriltag
     ports:
     - 5000:500
@@ -62,3 +62,4 @@ services:
  To share an external camera change this line 
  **- /dev/video0:/dev/video0** to **- /dev/video1:/dev/video0**
  assuming that your external camera index is 1 
+ 
