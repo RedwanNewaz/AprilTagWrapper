@@ -3,7 +3,6 @@ import re
 from AprilTagWrapper import camera, ATW
 sys.path.append("PoseEKF")
 from PoseEKF import PoseEKFWrapper
-from scipy.spatial.transform import Rotation as R
 
 def read_camera_parameters(file):
     '''
