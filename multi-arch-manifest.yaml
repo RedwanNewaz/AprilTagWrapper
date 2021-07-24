@@ -1,0 +1,13 @@
+
+image: redwan06me/apriltag-ekf-server:latest
+manifests:
+  - image: redwan06me/apriltag-ekf-server:armhf
+    platform:
+      architecture: arm
+      os: linux
+      variant: v7
+  - image: redwan06me/apriltag-ekf-server:arm64v8
+    platform:
+      architecture: arm64
+      os: linux
+      variant: v8
